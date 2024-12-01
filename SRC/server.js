@@ -316,6 +316,34 @@ app.delete('/api/meal-plans/:mealPlanId', (req, res) => {
   });
 });
 
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+
+  // SQL query to fetch user by email
+  const query = 'SELECT * FROM users WHERE Email = ?';
+  db.query(query, [email], (err, results) => {
+      if (err) {
+          console.error('Error fetching user:', err);
+          return res.status(500).json({ error: 'Server error' });
+      }
+
+      // Check if user exists
+      if (results.length === 0) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      const user = results[0];
+
+      // Compare the provided password with the stored password (plaintext check)
+      if (password !== user.Password) {
+          return res.status(401).json({ error: 'Incorrect password' });
+      }
+
+      // Login successful
+      res.status(200).json({ message: 'Login successful' });
+  });
+});
+
 // Start server
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
