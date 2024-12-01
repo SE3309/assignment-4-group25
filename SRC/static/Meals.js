@@ -94,7 +94,7 @@ let mealPlanId = null;
 
 // Fetch food options
 function loadFoodOptions() {
-    fetch('/api/foods') // Assumes an API endpoint to fetch all food items
+    fetch('/api/foods') 
         .then(response => response.json())
         .then(data => {
             const foodList = document.getElementById('foodList');
@@ -111,7 +111,6 @@ function loadFoodOptions() {
 // Create a meal plan
 document.getElementById('createPlanButton').addEventListener('click', () => {
     const planName = document.getElementById('planName').value;
-    console.log(planName)
     if (!planName) {
         alert('Please enter a name for the meal plan.');
         return;
@@ -128,6 +127,7 @@ document.getElementById('createPlanButton').addEventListener('click', () => {
             alert('Meal plan created!');
             document.getElementById('addFoodSection').style.display = 'block';
             loadFoodOptions();
+            loadMealPlans(); // Reload meal plans to include the newly created one
         })
         .catch(error => console.error('Error creating meal plan:', error));
 });
@@ -154,7 +154,7 @@ document.getElementById('addFoodButton').addEventListener('click', () => {
         .catch(error => console.error('Error adding food:', error));
 });
 
-// Calculate total macros
+// Calculate total macros for the meal plan
 function calculateMacros() {
     fetch(`/api/mealplan-macros?mealPlanId=${mealPlanId}`)
         .then(response => response.json())
@@ -162,11 +162,144 @@ function calculateMacros() {
             const macrosSection = document.getElementById('macrosSection');
             macrosSection.style.display = 'block';
             document.getElementById('totalMacros').textContent = `
-                        Total Calories: ${data.TotalCalories || 0}, 
-                        Protein: ${data.TotalProtein || 0}g, 
-                        Carbs: ${data.TotalCarbs || 0}g, 
-                        Fats: ${data.TotalFats || 0}g
-                    `;
+                Total Calories: ${data.totalMacros.calories || 0}, 
+                Protein: ${data.totalMacros.protein || 0}g, 
+                Carbs: ${data.totalMacros.carbs || 0}g, 
+                Fats: ${data.totalMacros.fats || 0}g
+            `;
         })
         .catch(error => console.error('Error fetching macros:', error));
 }
+
+// Load all meal plans
+function loadMealPlans() {
+    fetch('/api/mealplans?userId=1') // Replace with dynamic user data
+        .then(response => response.json())
+        .then(data => {
+            const mealPlansList = document.getElementById('mealPlansList');
+            mealPlansList.innerHTML = '';
+            data.forEach(plan => {
+                const planElement = document.createElement('li');
+                planElement.textContent = `Meal Plan: ${plan.PlanName}`;
+                
+                // Fetch and display the foods and macros for each meal plan
+                const planDetailsButton = document.createElement('button');
+                planDetailsButton.textContent = 'View Foods & Macros';
+                planDetailsButton.addEventListener('click', () => viewMealPlanDetails(plan.MealPlanID));
+                planElement.appendChild(planDetailsButton);
+                
+                mealPlansList.appendChild(planElement);
+            });
+        })
+        .catch(error => console.error('Error loading meal plans:', error));
+}
+
+// View foods and macros for a meal plan
+// Function to view details of a meal plan (including foods and macros)
+// Function to view details of a meal plan (including foods and macros)
+function viewMealPlanDetails(mealPlanId) {
+    fetch(`/api/mealplan-details?mealPlanId=${mealPlanId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Check if the response contains the expected data
+            if (!data || !data.Foods || !Array.isArray(data.Foods)) {
+                console.error('Foods data is missing or malformed');
+                return;
+            }
+
+            // Check if the details section exists
+            const detailsSection = document.getElementById('mealPlansListSection');
+            if (!detailsSection) {
+                console.error('Details section not found');
+                return;
+            }
+
+            // Clear previous content
+            detailsSection.innerHTML = '';
+
+            // Create meal plan details content
+            const planName = document.createElement('h3');
+            planName.textContent = `${data.PlanName || 'N/A'}`;
+            detailsSection.appendChild(planName);
+
+            // Create foods list if there are foods
+            const foodsList = document.createElement('ul');
+            if (data.Foods.length === 0) {
+                const noFoodsItem = document.createElement('li');
+                noFoodsItem.textContent = 'No foods in this meal plan.';
+                foodsList.appendChild(noFoodsItem);
+            } else {
+                data.Foods.forEach(food => {
+                    const foodItem = document.createElement('li');
+                    foodItem.textContent = `${food.Name} - Serving Size: ${food.ServingSize}g`;
+                    foodsList.appendChild(foodItem);
+                });
+            }
+            detailsSection.appendChild(foodsList);
+
+            // Display macros if available
+            const macros = document.createElement('p');
+            const macrosData = data.Macros || {};
+            macros.textContent = `Macros: Calories: ${macrosData.Calories || 'N/A'}, Protein: ${macrosData.Protein || 'N/A'}, Carbs: ${macrosData.Carbs || 'N/A'}, Fats: ${macrosData.Fats || 'N/A'}`;
+            detailsSection.appendChild(macros);
+        })
+        .catch(error => {
+            console.error('Error fetching meal plan details:', error);
+        });
+}
+
+// Function to fetch meal plans for userId = 1
+async function getMealPlans() {
+    const response = await fetch('/api/mealplans?userId=1');
+    const mealPlans = await response.json();
+    return mealPlans;
+}
+
+// Get the form and response message element
+const form = document.getElementById('delete-form');
+const responseMessage = document.getElementById('response-message');
+
+form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const planName = document.getElementById('mealPlanName').value.trim();
+
+    // Check if responseMessage exists before trying to set its textContent
+    if (!responseMessage) {
+        console.error('Response message element not found');
+        return;
+    }
+
+    try {
+        // Fetch meal plans for userId = 1
+        const mealPlans = await getMealPlans();
+
+        // Find the meal plan by name
+        const mealPlan = mealPlans.find(plan => plan.PlanName === planName);
+
+        if (!mealPlan) {
+            responseMessage.textContent = 'Meal plan not found!';
+            return;
+        }
+
+        // Send DELETE request to the API to delete the meal plan
+        const response = await fetch(`/api/meal-plans/${mealPlan.MealPlanID}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            responseMessage.textContent = data.message;
+        } else {
+            responseMessage.textContent = data.error;
+        }
+    } catch (error) {
+        responseMessage.textContent = 'Error fetching or deleting the meal plan';
+    }
+});
+
+// Load meal plans on page load
+window.onload = loadMealPlans;

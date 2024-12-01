@@ -33,6 +33,10 @@
         <section id="results">
             <!-- Meal plan results will appear here -->
         </section>
+        <section id="mealPlansListSection">
+            <h2>My Meal Plans</h2>
+            <ul id="mealPlansList"></ul> <!-- This will hold the list of meal plans -->
+        </section>
     </main>
 
     <h1>Meal Plan Manager</h1>
@@ -54,7 +58,17 @@
         <h2>Total Macros</h2>
         <p id="totalMacros">Loading...</p>
     </div>
-    
+
+    <h1>Delete Meal Plan</h1>
+
+    <!-- Form for input -->
+    <form id="delete-form">
+        <label for="mealPlanName">Enter the name of the meal plan to delete:</label><br>
+        <input type="text" id="mealPlanName" name="mealPlanName" required>
+        <button type="submit">Delete Plan</button>
+    </form>
+    <p id="response-message"></p>
+
     <script src="Meals.js"></script>
 </body>
 </html>

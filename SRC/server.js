@@ -191,33 +191,45 @@ app.post('/api/mealplan-meals', (req, res) => {
   });
 });
 
+// Get foods and calculate macros for a specific meal plan
 app.get('/api/mealplan-macros', (req, res) => {
-  const mealPlanId = req.query.mealPlanId;
-
-  if (!mealPlanId) {
-      return res.status(400).send('MealPlanID is required');
-  }
+  const { mealPlanId } = req.query;
 
   const query = `
-      SELECT 
-          SUM(F.Calories * MPM.ServingSize) AS TotalCalories,
-          SUM(F.Protein * MPM.ServingSize) AS TotalProtein,
-          SUM(F.Carbs * MPM.ServingSize) AS TotalCarbs,
-          SUM(F.Fats * MPM.ServingSize) AS TotalFats
-      FROM MealPlanMeals MPM
-      JOIN Food F ON MPM.FoodID = F.FoodID
-      WHERE MPM.MealPlanID = ?
+      SELECT f.Name, mm.ServingSize, f.Calories, f.Protein, f.Carbs, f.Fats
+      FROM mealplanmeals mm
+      JOIN food f ON mm.FoodID = f.FoodID
+      WHERE mm.MealPlanID = ?
   `;
 
   db.query(query, [mealPlanId], (err, results) => {
       if (err) {
-          console.error('Error fetching meal plan macros:', err);
-          return res.status(500).send('Server error');
+          console.error('Error fetching foods for the meal plan:', err);
+          return res.status(500).json({ error: 'Server error' });
       }
 
-      res.json(results[0]);
+      if (results.length === 0) {
+          return res.status(404).json({ error: 'No foods found for this meal plan' });
+      }
+
+      let totalMacros = {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fats: 0
+      };
+
+      results.forEach(food => {
+          totalMacros.calories += food.Calories * food.ServingSize;
+          totalMacros.protein += food.Protein * food.ServingSize;
+          totalMacros.carbs += food.Carbs * food.ServingSize;
+          totalMacros.fats += food.Fats * food.ServingSize;
+      });
+
+      res.json({ foods: results, totalMacros });
   });
 });
+
 
 app.get('/api/foods', (req, res) => {
   db.query('SELECT * FROM food', (err, results) => {
@@ -226,6 +238,81 @@ app.get('/api/foods', (req, res) => {
       return res.status(500).json({ error: 'Server error' });
     }
     res.json(results);
+  });
+});
+
+// Fetch all meal plans for a specific user
+app.get('/api/mealplans', (req, res) => {
+  const userId = req.query.userId;
+
+  const query = 'SELECT * FROM mealplan WHERE UserID = ?';
+  db.query(query, [userId], (err, results) => {
+      if (err) {
+          console.error('Error fetching meal plans:', err);
+          return res.status(500).json({ error: 'Server error' });
+      }
+      res.json(results);
+  });
+});
+
+app.get('/api/mealplan-details', (req, res) => {
+  const mealPlanId = req.query.mealPlanId;
+  
+  // Example database query to fetch meal plan and foods
+  db.query('SELECT f.FoodID, f.Name, f.Calories, f.Protein, f.Carbs, f.Fats, mm.ServingSize FROM mealplanmeals mm JOIN food f ON mm.FoodID = f.FoodID WHERE mm.MealPlanID = ?', [mealPlanId], (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ error: 'Database query failed' });
+      }
+      
+      // Prepare the response data
+      const foods = results.map(row => ({
+          FoodID: row.FoodID,
+          Name: row.Name,
+          ServingSize: row.ServingSize,
+          Calories: row.Calories,
+          Protein: row.Protein,
+          Carbs: row.Carbs,
+          Fats: row.Fats
+      }));
+
+      // Example macros calculation (this could be more complex)
+      const macros = {
+          Calories: foods.reduce((sum, food) => sum + food.Calories, 0),
+          Protein: foods.reduce((sum, food) => sum + food.Protein, 0),
+          Carbs: foods.reduce((sum, food) => sum + food.Carbs, 0),
+          Fats: foods.reduce((sum, food) => sum + food.Fats, 0)
+      };
+
+      // Send the response
+      res.json({ PlanName: 'Foods in plan:', Foods: foods, Macros: macros });
+  });
+});
+
+app.delete('/api/meal-plans/:mealPlanId', (req, res) => {
+  const { mealPlanId } = req.params;
+
+  // Ensure the mealPlanId is a valid number
+  if (isNaN(mealPlanId)) {
+      return res.status(400).json({ error: 'Invalid MealPlanID' });
+  }
+
+  // SQL query to delete the meal plan
+  const query = 'DELETE FROM mealplan WHERE MealPlanID = ?';
+
+  db.query(query, [mealPlanId], (err, results) => {
+      if (err) {
+          console.error('Error deleting meal plan:', err);
+          return res.status(500).json({ error: 'Server error' });
+      }
+
+      // Check if any rows were affected (i.e., if the meal plan existed)
+      if (results.affectedRows === 0) {
+          return res.status(404).json({ error: 'Meal plan not found' });
+      }
+
+      // Successfully deleted the meal plan
+      res.status(200).json({ message: 'Meal plan deleted successfully' });
   });
 });
 
