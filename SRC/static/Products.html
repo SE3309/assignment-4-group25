@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Products</title>
+  <link rel="stylesheet" href="Products.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Carnivore Gym</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="meals.html">Meals</a></li>
+      <li><a href="workouts.html">Workouts</a></li>
+      <li><a href="orders.html">Orders</a></li>
+      <li><a href="locations.html">Locations</a></li>
+      <li><a href="products.html">Products</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h1>Gym Products</h1>
+
+    <div class="filters">
+      <input type="text" id="nameFilter" placeholder="Product Name">
+      <input type="number" id="minPriceFilter" placeholder="Min Price">
+      <input type="number" id="maxPriceFilter" placeholder="Max Price">
+      <label>
+        <input type="checkbox" id="inStockFilter"> In Stock Only
+      </label>
+      <button onclick="fetchProducts()">Filter</button>
+    </div>
+
+    <div id="productList"></div>
+  </main>
+
+  <script src="Products.js"></script>
+</body>
+</html>
