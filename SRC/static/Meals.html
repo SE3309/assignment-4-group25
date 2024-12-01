@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Plans</title>
+    <link rel="stylesheet" href="Meals.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Carnivore Gym</div>
+        <ul class="nav-links">
+            <li><a href="Products.html">Products</a></li>
+            <li><a href="Meals.html">Meals</a></li>
+            <li><a href="Workouts.html">Workouts</a></li>
+            <li><a href="#orders">Orders</a></li>
+            <li><a href="Locations.html">Locations</a></li>
+            <li><a href="#login">Login</a></li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>Search Meal Plans</h1>
+        <p>Enter a food item below to see which meal plans include it.</p>
+    </header>
+
+    <main>
+        <form id="mealSearchForm">
+            <input type="text" id="foodInput" name="food" placeholder="Enter food item (e.g., Chicken)" required>
+            <button type="submit">Search</button>
+        </form>
+
+        <section id="results">
+            <!-- Meal plan results will appear here -->
+        </section>
+    </main>
+
+    <h1>Meal Plan Manager</h1>
+
+    <div class="form-group">
+        <label for="planName">Create a New Meal Plan:</label>
+        <input type="text" id="planName" placeholder="Meal Plan Name" />
+        <button id="createPlanButton">Create Meal Plan</button>
+    </div>
+
+    <div class="form-group" id="addFoodSection" style="display: none;">
+        <h2>Add Food to Meal Plan</h2>
+        <select id="foodList"></select>
+        <input type="number" id="servingSize" placeholder="Serving Size" min="0.1" step="0.1" />
+        <button id="addFoodButton">Add Food</button>
+    </div>
+
+    <div class="form-group" id="macrosSection" style="display: none;">
+        <h2>Total Macros</h2>
+        <p id="totalMacros">Loading...</p>
+    </div>
+    
+    <script src="Meals.js"></script>
+</body>
+</html>
