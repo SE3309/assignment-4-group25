@@ -1,0 +1,56 @@
+-- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+--
+-- Host: localhost    Database: gymdatabase
+-- ------------------------------------------------------
+-- Server version	8.0.40
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `mealplanmeals`
+--
+
+DROP TABLE IF EXISTS `mealplanmeals`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `mealplanmeals` (
+  `MealPlanID` int NOT NULL,
+  `FoodID` int NOT NULL,
+  `ServingSize` float NOT NULL,
+  PRIMARY KEY (`MealPlanID`,`FoodID`),
+  KEY `fk_mealplanmeals_food` (`FoodID`),
+  CONSTRAINT `fk_mealplanmeals_food` FOREIGN KEY (`FoodID`) REFERENCES `food` (`FoodID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_mealplanmeals_mealplan` FOREIGN KEY (`MealPlanID`) REFERENCES `mealplan` (`MealPlanID`) ON DELETE CASCADE,
+  CONSTRAINT `mealplanmeals_chk_1` CHECK ((`ServingSize` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mealplanmeals`
+--
+
+LOCK TABLES `mealplanmeals` WRITE;
+/*!40000 ALTER TABLE `mealplanmeals` DISABLE KEYS */;
+INSERT INTO `mealplanmeals` VALUES (1,208,2),(1,358,3),(1,443,3),(2,67,1),(2,84,2),(2,408,3),(2,434,4),(3,291,4),(3,326,5),(3,396,1),(3,485,1),(4,74,3),(4,99,1),(4,100,5),(4,414,3),(5,46,5),(5,249,5),(5,478,2),(6,20,4),(6,43,5),(6,69,4),(6,333,2),(6,361,3),(7,416,2),(7,417,1),(7,451,4),(8,133,2),(8,424,5),(9,56,3),(9,113,2),(9,300,1),(9,452,2),(10,15,3),(10,97,4),(10,267,3),(11,144,3),(11,185,5),(11,280,4),(11,283,3),(11,312,4),(12,270,5),(14,16,4),(16,183,5),(16,252,3),(16,364,3),(16,462,3),(17,226,2),(17,356,5),(17,407,3),(17,458,4),(18,16,1),(18,110,1),(18,400,5),(19,159,4),(19,221,2),(19,480,4),(20,124,5),(20,197,5),(20,261,3),(21,140,2),(21,388,5),(22,35,4),(22,36,4),(22,168,2),(23,373,2),(23,413,1),(24,82,5),(24,268,5),(24,320,2),(25,160,4),(25,321,5),(26,3,3),(26,54,4),(26,144,2),(26,246,2),(26,385,4),(26,427,2),(26,451,2),(27,188,4),(27,202,2),(27,240,5),(27,304,4),(27,475,4),(28,178,4),(28,311,3),(28,451,4),(28,466,4),(29,152,4),(29,365,5),(29,391,1),(30,44,1),(30,126,1),(30,246,1),(30,286,4),(30,334,2),(31,12,10),(31,131,1),(31,430,3),(31,452,3),(32,22,5),(32,103,4),(32,140,1),(32,250,2),(33,294,4),(33,379,4),(34,71,2),(34,492,5),(35,62,4),(35,344,1),(36,436,5),(37,67,4),(38,129,4),(38,139,3),(38,182,3),(38,302,8),(38,340,2),(38,495,4),(39,133,5),(39,162,3),(39,299,5),(40,148,4),(40,227,2),(40,394,3),(41,82,3),(41,204,2),(43,256,3),(44,32,5),(44,295,1),(44,383,5),(45,157,3),(45,172,1),(45,376,5),(45,433,4),(45,469,4),(46,149,3),(47,417,4),(48,17,4),(48,42,1),(48,139,5),(48,380,1),(48,383,4),(49,99,2),(49,101,1),(49,316,5),(51,113,2),(51,480,2),(52,41,2),(52,233,2),(53,195,1),(53,452,1),(54,292,3),(54,446,3),(55,27,2),(55,60,2),(55,277,4),(55,302,8),(55,429,2),(55,440,4),(57,424,3),(58,297,4),(60,391,3),(62,87,3),(62,171,2),(63,95,1),(64,2,1),(64,175,1),(66,148,5),(67,324,5),(69,231,1),(69,343,4),(69,360,3),(70,130,2),(70,440,4),(71,62,3),(71,390,2),(72,5,1),(72,21,3),(72,309,4),(72,355,3),(73,164,5),(73,290,2),(75,51,3),(75,86,3),(76,342,4),(76,405,5),(76,489,5),(78,14,3),(78,89,1),(78,264,4),(80,14,2),(80,89,5),(81,194,1),(81,205,2),(81,439,4),(82,454,1),(82,455,5),(83,53,5),(83,145,3),(83,150,4),(83,274,2),(83,349,2),(84,3,5),(84,45,5),(84,192,3),(85,218,2),(85,262,3),(85,452,1),(86,137,3),(86,326,4),(87,315,2),(87,395,4),(87,489,5),(89,244,2),(90,195,3),(91,47,2),(91,76,4),(91,206,4),(91,220,3),(92,58,4),(92,278,5),(94,73,5),(94,371,1),(95,47,5),(96,171,2),(96,223,5),(97,56,1),(97,321,5),(97,360,1),(98,196,2),(99,240,4),(100,67,2),(100,193,3),(100,436,1);
+/*!40000 ALTER TABLE `mealplanmeals` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2024-12-01 20:15:51
